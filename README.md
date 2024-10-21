@@ -7,14 +7,35 @@ Commitlint PR Title Action
 
 ## Usage
 
-### Example
+### Basic Example
 
 ```yaml
+name: Check PR Title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - edited
+
 jobs:
   commitlint-pr-title:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Commitlint PR Title
         uses: ovsds/commitlint-pr-title-action@v1
+```
+
+### Example with custom configuration
+
+```yaml
+- name: Commitlint PR Title
+  uses: ovsds/commitlint-pr-title-action@v1
+  with:
+    config_file: ./commitlint.config.js
 ```
 
 ### Action Inputs
