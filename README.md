@@ -1,0 +1,1 @@
+# commitlint-pr-title-action
