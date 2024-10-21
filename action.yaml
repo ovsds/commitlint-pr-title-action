@@ -88,7 +88,7 @@ runs:
         # Resolving commitlint config file
         if [ -n "$CONFIG_FILE" ]; then
           echo "config_file provided"
-          result="$CONFIG_FILE"
+          result=$(realpath $CONFIG_FILE)
         else
           result="$TMP_DIRECTORY/commitlint.config.js"
           echo "config_file not provided, writing config to temporary file:"
