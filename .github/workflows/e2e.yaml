@@ -139,8 +139,7 @@ jobs:
         env:
           CONFIG: ${{ env.CUSTOM_CONFIG }}
         run: |
-          result=$(mktemp --suffix test/test2/commitlint-config.js)
-          result=$(realpath --relative-to=. $result)
+          result=commitlint-config.js
           echo "$CONFIG" > $result
           echo "result=$result" >> $GITHUB_OUTPUT
 
