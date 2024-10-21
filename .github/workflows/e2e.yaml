@@ -7,6 +7,14 @@ on:
       - reopened
       - synchronize
 
+env:
+  CUSTOM_CONFIG: |
+    "use strict";
+    module.exports = {
+      extends: ["@commitlint/config-conventional"],
+      rules: { "type-enum": [2, "always", ["custom"]] },
+    };
+
 jobs:
   e2e-default:
     runs-on: ubuntu-20.04
@@ -22,10 +30,203 @@ jobs:
         id: test-run
         uses: ./
         with:
-          placeholder: "test_placeholder"
+          pr_title: "feat: add new feature"
 
-      - name: Assert placeholder
+  e2e-failure:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        continue-on-error: true
+        uses: ./
+        with:
+          pr_title: "invalid commit message"
+
+      - name: Assert failure
         uses: nick-fields/assert-action@v2
         with:
-          actual: ${{ steps.test-run.outputs.placeholder }}
-          expected: "test_placeholder"
+          actual: ${{ steps.test-run.outcome }}
+          expected: "failure"
+
+  e2e-commitlint-config:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          pr_title: "custom: add new feature"
+          config: ${{ env.CUSTOM_CONFIG }}
+
+  e2e-commitlint-config-failure:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test Run
+        id: test-run
+        continue-on-error: true
+        uses: ./
+        with:
+          pr_title: "feat: add new feature"
+          config: ${{ env.CUSTOM_CONFIG }}
+
+      - name: Assert failure
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outcome }}
+          expected: "failure"
+
+  e2e-commitlint-config-file:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare commitlint configuration file
+        id: prepare-commitlint-config-file
+        shell: bash
+        env:
+          CONFIG: ${{ env.CUSTOM_CONFIG }}
+        run: |
+          result=$(mktemp --suffix commitlint-config.js)
+          echo "$CONFIG" > $result
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          pr_title: "custom: add new feature"
+          config_file: ${{ steps.prepare-commitlint-config-file.outputs.result }}
+
+  e2e-commitlint-config-file-failure:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare commitlint configuration file
+        id: prepare-commitlint-config-file
+        shell: bash
+        env:
+          CONFIG: ${{ env.CUSTOM_CONFIG }}
+        run: |
+          result=$(mktemp)
+          echo "$CONFIG" > $result
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+      - name: Test Run
+        id: test-run
+        continue-on-error: true
+        uses: ./
+        with:
+          pr_title: "feat: add new feature"
+          config_file: ${{ steps.prepare-commitlint-config-file.outputs.result }}
+
+      - name: Assert failure
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outcome }}
+          expected: "failure"
+
+  e2e-node-modules:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare node_modules
+        id: prepare-node-modules
+        shell: bash
+        run: |
+          result=$(mktemp -d)
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+      - name: Install node
+        id: install-dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: "v20.15.1"
+
+      - name: Install dependencies
+        working-directory: ${{ steps.prepare-node-modules.outputs.result }}
+        run: |
+          npm install \
+            @commitlint/cli@^19.5.0 \
+            @commitlint/config-conventional@^19.5.0
+
+      - name: Test Run
+        id: test-run
+        uses: ./
+        with:
+          pr_title: "feat: add new feature"
+          node_modules: ${{ steps.prepare-node-modules.outputs.result }}/node_modules
+
+  e2e-node-modules-incorrect-dependencies:
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare node_modules
+        id: prepare-node-modules
+        shell: bash
+        run: |
+          result=$(mktemp -d)
+          echo "result=$result" >> $GITHUB_OUTPUT
+
+      - name: Install node
+        id: install-dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: "v20.15.1"
+
+      - name: Test Run
+        id: test-run
+        continue-on-error: true
+        uses: ./
+        with:
+          pr_title: "feat: add new feature"
+          node_modules: ${{ steps.prepare-node-modules.outputs.result }}/node_modules
+
+      - name: Assert failure
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outcome }}
+          expected: "failure"

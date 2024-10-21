@@ -12,26 +12,22 @@ Commitlint PR Title Action
 ```yaml
 jobs:
   commitlint-pr-title:
-    permissions:
-      contents: read
-
     steps:
       - name: Commitlint PR Title
-        id: commitlint-pr-title
         uses: ovsds/commitlint-pr-title-action@v1
 ```
 
 ### Action Inputs
 
-| Name          | Description  | Default |
-| ------------- | ------------ | ------- |
-| `placeholder` | Placeholder. |         |
-
-### Action Outputs
-
-| Name          | Description  |
-| ------------- | ------------ |
-| `placeholder` | Placeholder. |
+| Name                           | Description                                                           | Default                                                              |
+| ------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `pr_title`                     | PR title                                                              | `${{ github.event.pull_request.title }}`                             |
+| `config_file`                  | Commitlint configuration file path                                    |                                                                      |
+| `config`                       | Commitlint configuration plaintext, ignored if `config_file` provided | `module.exports = { extends: ["@commitlint/config-conventional"] };` |
+| `node_modules`                 | Path to `node_modules` directory                                      |                                                                      |
+| `node_version`                 | Node.js version, ignored if `node_modules` provided                   | `v20.15.1`                                                           |
+| `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                | `^19.5.0`                                                            |
+| `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided     | `@commitlint/config-conventional@^19.5.0`                            |
 
 ## Development
 

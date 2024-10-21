@@ -2,26 +2,123 @@ name: "Commitlint PR Title"
 description: "Commitlint PR Title Action"
 
 inputs:
-  placeholder:
-    description: "Placeholder input to be replaced by real inputs"
+  pr_title:
+    description: "Pull request title"
     required: true
-    default: "placeholder"
-
-outputs:
-  placeholder:
-    description: "Placeholder output to be replaced by real outputs"
-    value: ${{steps.placeholder.outputs.placeholder }}
+    default: ${{ github.event.pull_request.title }}
+  config_file:
+    description: "Commitlint configuration file"
+  config:
+    description: "Commitlint configuration plaintext, ignored if config_file is provided"
+    default: 'module.exports = { extends: ["@commitlint/config-conventional"] };'
+  node_modules:
+    description: "Node modules directory"
+    default: ""
+  node_version:
+    description: "Node version, ignored if node_modules is provided"
+    default: "v20.15.1"
+  commitlint_version:
+    description: "Commitlint version, ignored if node_modules is provided"
+    default: "^19.5.0"
+  additional_node_dependencies:
+    description: "Additional node dependencies, ignored if node_modules is provided"
+    default: |
+      @commitlint/config-conventional@^19.5.0
 
 runs:
   using: "composite"
   steps:
-    - name: Placeholder
-      id: placeholder
-      shell: bash
-      run: |
-        echo "::set-output name=placeholder::${{ inputs.placeholder }}"
+    - name: Install node
+      if: "${{ inputs.node_modules == '' }}"
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ inputs.node_version }}
 
-# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
+    - name: Create temporary directory
+      shell: bash
+      id: create-tmp-directory
+      run: |
+        # Creating temporary directory
+        result=$(mktemp -d)
+        echo "result=$result" >> $GITHUB_OUTPUT
+        echo "Temporary directory set to $result"
+
+    - name: Install node dependencies
+      if: "${{ inputs.node_modules == '' }}"
+      working-directory: ${{ steps.create-tmp-directory.outputs.result }}
+      shell: bash
+      env:
+        COMMITLINT_VERSION: ${{ inputs.commitlint_version }}
+        ADDITIONAL_NODE_DEPENDENCIES: ${{ inputs.additional_node_dependencies }}
+      run: |
+        # Installing dependencies
+        npm install \
+          --no-save \
+          "@commitlint/cli@$COMMITLINT_VERSION" \
+          $(echo "$ADDITIONAL_NODE_DEPENDENCIES" | tr "\n" " ")
+
+    # if node_modules input is present return parent folder, otherwise use tmp directory
+    - name: Resolve working directory
+      id: resolve-working-directory
+      shell: bash
+      env:
+        NODE_MODULES: ${{ inputs.node_modules }}
+        TMP_DIRECTORY: ${{ steps.create-tmp-directory.outputs.result }}
+      run: |
+        # Resolving working directory
+        if [ -z "${{ inputs.node_modules }}" ]; then
+          result=$TMP_DIRECTORY
+          echo "Node modules not provided, using temporary directory"
+        else
+          result=$(dirname $NODE_MODULES)
+          echo "Node modules provided, using parent directory"
+        fi
+        echo "result=$result" >> $GITHUB_OUTPUT
+        echo "Working directory set to $result"
+
+    # if config_file input is present return it, otherwise write config to file and return it
+    - name: Resolve commitlint config file
+      id: resolve-commitlint-config-file
+      shell: bash
+      env:
+        CONFIG_FILE: ${{ inputs.config_file }}
+        CONFIG: ${{ inputs.config }}
+        TMP_DIRECTORY: ${{ steps.create-tmp-directory.outputs.result }}
+      run: |
+        # Resolving commitlint config file
+        if [ -n "$CONFIG_FILE" ]; then
+          echo "config_file provided"
+          result="$CONFIG_FILE"
+        else
+          result="$TMP_DIRECTORY/commitlint.config.js"
+          echo "config_file not provided, writing config to temporary file:"
+          echo "$CONFIG" > "$result"
+        fi
+        echo "$CONFIG"
+        echo "result=$result" >> $GITHUB_OUTPUT
+        echo "Commitlint config file set to $result"
+
+    - name: Run commitlint
+      shell: bash
+      working-directory: ${{ steps.resolve-working-directory.outputs.result }}
+      env:
+        PR_TITLE: ${{ inputs.pr_title }}
+        CONFIG_FILE: ${{ steps.resolve-commitlint-config-file.outputs.result }}
+        NODE_PATH: ${{ steps.resolve-working-directory.outputs.result }}/node_modules
+      run: |
+        # Running commitlint
+        echo "$PR_TITLE" | npx commitlint \
+          --config $CONFIG_FILE
+
+    - name: Remove temporary directory
+      shell: bash
+      if: success() || failure()
+      env:
+        TMP_DIRECTORY: ${{ steps.create-tmp-directory.outputs.result }}
+      run: |
+        # Removing temporary directory
+        rm -rf $TMP_DIRECTORY
+
 branding:
-  icon: "message-square"
+  icon: "plus-circle"
   color: "gray-dark"
