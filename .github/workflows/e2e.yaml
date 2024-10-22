@@ -17,7 +17,7 @@ env:
 
 jobs:
   e2e-default:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -33,7 +33,7 @@ jobs:
           pr_title: "feat: add new feature"
 
   e2e-failure:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -56,7 +56,7 @@ jobs:
           expected: "failure"
 
   e2e-config:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -73,7 +73,7 @@ jobs:
           config: ${{ env.CUSTOM_CONFIG }}
 
   e2e-config-failure:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -97,7 +97,7 @@ jobs:
           expected: "failure"
 
   e2e-config-file-absolute-path:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -124,7 +124,7 @@ jobs:
           config_file: ${{ steps.prepare-config-file.outputs.result }}
 
   e2e-config-file-relative-path:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -151,7 +151,7 @@ jobs:
           config_file: "./${{ steps.prepare-config-file.outputs.result }}"
 
   e2e-config-file-failure:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -185,7 +185,7 @@ jobs:
           expected: "failure"
 
   e2e-node-modules:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -222,7 +222,7 @@ jobs:
           node_modules: ${{ steps.prepare-node-modules.outputs.result }}/node_modules
 
   e2e-node-modules-incorrect-dependencies:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     permissions:
       contents: read
@@ -257,3 +257,25 @@ jobs:
         with:
           actual: ${{ steps.test-run.outcome }}
           expected: "failure"
+
+  e2e:
+    runs-on: ubuntu-latest
+    if: always() && !cancelled()
+
+    needs:
+      - e2e-default
+      - e2e-failure
+      - e2e-config
+      - e2e-config-failure
+      - e2e-config-file-absolute-path
+      - e2e-config-file-relative-path
+      - e2e-config-file-failure
+      - e2e-node-modules
+      - e2e-node-modules-incorrect-dependencies
+
+    steps:
+      - name: Collect Results
+        uses: ovsds/collect-needs-result-action@v1
+        with:
+          needs_json: ${{ toJson(needs) }}
+          skip_allowed: false
