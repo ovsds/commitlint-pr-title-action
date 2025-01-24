@@ -38,6 +38,24 @@ jobs:
         with:
           pr_title: "feat: add new feature"
 
+      - name: Assert stdout
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.commitlint_stdout }}
+          expected: ""
+
+      - name: Assert stderr
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.commitlint_stderr }}
+          expected: ""
+
+      - name: Assert exit code
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.commitlint_exit_code }}
+          expected: "0"
+
   e2e-failure:
     runs-on: ubuntu-latest
 
@@ -62,6 +80,24 @@ jobs:
         with:
           actual: ${{ steps.test-run.outcome }}
           expected: "failure"
+
+      - name: Assert stdout
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.commitlint_stdout }}
+          expected: |
+            ⧗   input: invalid commit message
+            ✖   subject may not be empty [subject-empty]
+            ✖   type may not be empty [type-empty]
+
+            ✖   found 2 problems, 0 warnings
+            ⓘ   Get help: https://github.com/conventional-changelog/commitlint/#what-is-commitlint
+
+      - name: Assert exit code
+        uses: nick-fields/assert-action@v2
+        with:
+          actual: ${{ steps.test-run.outputs.commitlint_exit_code }}
+          expected: "1"
 
   e2e-config:
     runs-on: ubuntu-latest

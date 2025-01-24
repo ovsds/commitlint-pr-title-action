@@ -50,6 +50,14 @@ jobs:
 | `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                | `^19.5.0`                                                            |
 | `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided     | `@commitlint/config-conventional@^19.5.0`                            |
 
+### Action Outputs
+
+| Name                   | Description          |
+| ---------------------- | -------------------- |
+| `commitlint_stdout`    | Commitlint stdout    |
+| `commitlint_stderr`    | Commitlint stderr    |
+| `commitlint_exit_code` | Commitlint exit code |
+
 ## Development
 
 ### Global dependencies

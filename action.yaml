@@ -25,6 +25,17 @@ inputs:
     default: |
       @commitlint/config-conventional@^19.5.0
 
+outputs:
+  commitlint_stdout:
+    description: "Commitlint stdout"
+    value: ${{ steps.run-commitlint.outputs.stdout }}
+  commitlint_stderr:
+    description: "Commitlint stderr"
+    value: ${{ steps.run-commitlint.outputs.stderr }}
+  commitlint_exit_code:
+    description: "Commitlint exit code"
+    value: ${{ steps.run-commitlint.outputs.exit_code }}
+
 runs:
   using: "composite"
   steps:
@@ -99,16 +110,15 @@ runs:
         echo "Commitlint config file set to $result"
 
     - name: Run commitlint
-      shell: bash
-      working-directory: ${{ steps.resolve-working-directory.outputs.result }}
+      id: run-commitlint
+      uses: ovsds/run-with-output-action@v1
+      with:
+        cwd: ${{ steps.resolve-working-directory.outputs.result }}
+        run: echo "$PR_TITLE" | npx commitlint --config $CONFIG_FILE
       env:
         PR_TITLE: ${{ inputs.pr_title }}
         CONFIG_FILE: ${{ steps.resolve-commitlint-config-file.outputs.result }}
         NODE_PATH: ${{ steps.resolve-working-directory.outputs.result }}/node_modules
-      run: |
-        # Running commitlint
-        echo "$PR_TITLE" | npx commitlint \
-          --config $CONFIG_FILE
 
     - name: Remove temporary directory
       shell: bash
