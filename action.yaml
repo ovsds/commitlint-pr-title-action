@@ -66,7 +66,7 @@ runs:
         TMP_DIRECTORY: ${{ steps.create-tmp-directory.outputs.result }}
       run: |
         # Resolving working directory
-        if [ -z "${{ inputs.node_modules }}" ]; then
+        if [ -z $NODE_MODULES ]; then
           result=$TMP_DIRECTORY
           echo "Node modules not provided, using temporary directory"
         else
