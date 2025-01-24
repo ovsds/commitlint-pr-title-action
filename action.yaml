@@ -24,6 +24,10 @@ inputs:
     description: "Additional node dependencies, ignored if node_modules is provided"
     default: |
       @commitlint/config-conventional@^19.5.0
+outputs:
+  error_message:
+    description: "Error message"
+    value: ${{ steps.commitlint.outputs.error_message }}
 
 runs:
   using: "composite"
@@ -100,6 +104,7 @@ runs:
 
     - name: Run commitlint
       shell: bash
+      id: commitlint
       working-directory: ${{ steps.resolve-working-directory.outputs.result }}
       env:
         PR_TITLE: ${{ inputs.pr_title }}
@@ -107,8 +112,14 @@ runs:
         NODE_PATH: ${{ steps.resolve-working-directory.outputs.result }}/node_modules
       run: |
         # Running commitlint
-        echo "$PR_TITLE" | npx commitlint \
-          --config $CONFIG_FILE
+
+        if ! error_message=$(echo "$PR_TITLE" | npx commitlint --config $CONFIG_FILE 2>&1); then
+          echo "error_message<<EOF" >> $GITHUB_OUTPUT
+          echo "$error_message" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "::error::$error_message"
+          exit 1
+        fi
 
     - name: Remove temporary directory
       shell: bash
