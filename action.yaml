@@ -116,7 +116,8 @@ runs:
       uses: ovsds/run-with-output-action@9bc0dcb1df5b70d1704c709f9cc0f40d260a5f40 # v1.4.0
       with:
         cwd: ${{ steps.resolve-working-directory.outputs.result }}
-        run: echo "$PR_TITLE" | npx commitlint --config $CONFIG_FILE
+        # --no: never download commitlint when node_modules lacks it; --no-color: plain text for commitlint_stdout
+        run: echo "$PR_TITLE" | npx --no -- commitlint --config "$CONFIG_FILE" --no-color
       env:
         PR_TITLE: ${{ inputs.pr_title }}
         CONFIG_FILE: ${{ steps.resolve-commitlint-config-file.outputs.result }}
