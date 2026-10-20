@@ -86,7 +86,8 @@ jobs:
         with:
           actual: ${{ steps.test-run.outputs.commitlint_stdout }}
           expected: |
-            ⧗   input: invalid commit message
+            ⧗   --- input ---
+            invalid commit message
             ✖   subject may not be empty [subject-empty]
             ✖   type may not be empty [type-empty]
 
