@@ -46,9 +46,9 @@ jobs:
 | `config_file`                  | Commitlint configuration file path                                    |                                                                      |
 | `config`                       | Commitlint configuration plaintext, ignored if `config_file` provided | `module.exports = { extends: ["@commitlint/config-conventional"] };` |
 | `node_modules`                 | Path to `node_modules` directory                                      |                                                                      |
-| `node_version`                 | Node.js version, ignored if `node_modules` provided                   | `v20.15.1`                                                           |
-| `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                | `^19.5.0`                                                            |
-| `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided     | `@commitlint/config-conventional@^19.5.0`                            |
+| `node_version`                 | Node.js version, ignored if `node_modules` provided                   | `v24.22.0`                                                           |
+| `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                | `^21.2.4`                                                            |
+| `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided     | `@commitlint/config-conventional@^21.2.4`                            |
 
 ### Action Outputs
 

@@ -16,14 +16,14 @@ inputs:
     default: ""
   node_version:
     description: "Node version, ignored if node_modules is provided"
-    default: "v20.15.1"
+    default: "v24.22.0"
   commitlint_version:
     description: "Commitlint version, ignored if node_modules is provided"
-    default: "^19.5.0"
+    default: "^21.2.4"
   additional_node_dependencies:
     description: "Additional node dependencies, ignored if node_modules is provided"
     default: |
-      @commitlint/config-conventional@^19.5.0
+      @commitlint/config-conventional@^21.2.4
 
 outputs:
   commitlint_stdout:
@@ -41,9 +41,10 @@ runs:
   steps:
     - name: Install node
       if: "${{ inputs.node_modules == '' }}"
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: ${{ inputs.node_version }}
+        package-manager-cache: false
 
     - name: Create temporary directory
       shell: bash
@@ -111,7 +112,7 @@ runs:
 
     - name: Run commitlint
       id: run-commitlint
-      uses: ovsds/run-with-output-action@v1
+      uses: ovsds/run-with-output-action@9bc0dcb1df5b70d1704c709f9cc0f40d260a5f40 # v1.4.0
       with:
         cwd: ${{ steps.resolve-working-directory.outputs.result }}
         run: echo "$PR_TITLE" | npx commitlint --config $CONFIG_FILE
