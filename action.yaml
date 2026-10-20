@@ -15,7 +15,7 @@ inputs:
     description: "Node modules directory"
     default: ""
   node_version:
-    description: "Node version, ignored if node_modules is provided"
+    description: "Node version, ignored if node_modules is provided; commitlint 21 needs Node.js 22.12 or later"
     default: "v24.22.0"
   commitlint_version:
     description: "Commitlint version, ignored if node_modules is provided"
