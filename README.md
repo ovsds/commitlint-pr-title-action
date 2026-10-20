@@ -40,15 +40,15 @@ jobs:
 
 ### Action Inputs
 
-| Name                           | Description                                                           | Default                                                              |
-| ------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `pr_title`                     | PR title                                                              | `${{ github.event.pull_request.title }}`                             |
-| `config_file`                  | Commitlint configuration file path                                    |                                                                      |
-| `config`                       | Commitlint configuration plaintext, ignored if `config_file` provided | `module.exports = { extends: ["@commitlint/config-conventional"] };` |
-| `node_modules`                 | Path to `node_modules` directory                                      |                                                                      |
-| `node_version`                 | Node.js version, ignored if `node_modules` provided                   | `v20.15.1`                                                           |
-| `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                | `^19.5.0`                                                            |
-| `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided     | `@commitlint/config-conventional@^19.5.0`                            |
+| Name                           | Description                                                                                     | Default                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `pr_title`                     | PR title                                                                                        | `${{ github.event.pull_request.title }}`                             |
+| `config_file`                  | Commitlint configuration file path                                                              |                                                                      |
+| `config`                       | Commitlint configuration plaintext, ignored if `config_file` provided                           | `module.exports = { extends: ["@commitlint/config-conventional"] };` |
+| `node_modules`                 | Path to `node_modules` directory, must contain `@commitlint/cli`                                |                                                                      |
+| `node_version`                 | Node.js version, ignored if `node_modules` provided; commitlint 21 needs Node.js 22.12 or later | `v24.22.0`                                                           |
+| `commitlint_version`           | Commitlint version, ignored if `node_modules` provided                                          | `^21.2.4`                                                            |
+| `additional_node_dependencies` | Additional node dependencies, ignored if node_modules is provided                               | `@commitlint/config-conventional@^21.2.4`                            |
 
 ### Action Outputs
 
@@ -62,13 +62,13 @@ jobs:
 
 ### Global dependencies
 
-- [Taskfile](https://taskfile.dev/installation/)
-- [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#install--update-script)
-- [zizmor](https://woodruffw.github.io/zizmor/installation/) - used for GHA security scanning
+- [mise](https://mise.jdx.dev/installing-mise.html), activated in the shell (`eval "$(mise activate zsh)"`)
 
-### Taskfile commands
+All other tools are pinned in [mise.toml](mise.toml).
 
-For all commands see [Taskfile](Taskfile.yaml) or `task --list-all`.
+### mise tasks
+
+For all commands see [mise.toml](mise.toml) or `mise tasks ls`.
 
 ## License
 
