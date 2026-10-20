@@ -266,7 +266,8 @@ jobs:
 
       - name: Install dependencies
         working-directory: ${{ steps.prepare-node-modules.outputs.result }}
-        run: |
+        # A throwaway node_modules for the node_modules input, no lockfile applies
+        run: | # zizmor: ignore[adhoc-packages]
           npm install \
             @commitlint/cli@^21.2.4 \
             @commitlint/config-conventional@^21.2.4

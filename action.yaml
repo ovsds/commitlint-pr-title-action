@@ -62,7 +62,8 @@ runs:
       env:
         COMMITLINT_VERSION: ${{ inputs.commitlint_version }}
         ADDITIONAL_NODE_DEPENDENCIES: ${{ inputs.additional_node_dependencies }}
-      run: |
+      # No lockfile applies: commitlint is installed at the versions the caller passes
+      run: | # zizmor: ignore[adhoc-packages]
         # Installing dependencies
         npm install \
           --no-save \
